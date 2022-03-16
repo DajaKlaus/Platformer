@@ -1,9 +1,8 @@
 package com.example.platformer;
 
-import javafx.animation.Animation;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -13,10 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.security.Key;
 import java.util.ArrayList;
-import java.util.EventListener;
 import java.util.HashMap;
 
 public class HelloApplication extends Application {
@@ -64,17 +60,78 @@ public class HelloApplication extends Application {
         appRoot.getChildren().addAll(bg, gameRoot, uiRoot);
     }
 
-    private void update() {}
+    private void update() {
+        if (isPressed(KeyCode.W) && player.getTranslateY() >= 5) {
+            jumpPlayer();
+        }
+        if (isPressed(KeyCode.A) && player.getTranslateX() >= 5) {
+            movePlayerX(-5);
+        }
+        if (isPressed(KeyCode.D) && player.getTranslateX() + 40 <= levelWidth - 5) {
+            movePlayerX(5);
+        }
+        if (playerVelocity.getY() < 10) {
+            playerVelocity = playerVelocity.add(0, 1);
+        }
+        movePlayerY((int)playerVelocity.getY());
+    }
 
-    private void movePlayerX(int value) {}
+    private void movePlayerX(int value) {
+        boolean movingRight = value > 0;
 
-    private void movePlayerY(int value) {}
+        for (int i = 0; i < Math.abs(value); i++) {
+            for (Node platform : platforms) {
+                if (player.getBoundsInParent().intersects(platform.getBoundsInParent())) {
+                    if (movingRight) {
+                        if (player.getTranslateX() + 40 == platform.getTranslateX()) {
+                            return;
+                        }
+                    } else {
+                        if (player.getTranslateX() == platform.getTranslateX() + 60) {
+                            return;
+                        }
+                    }
+                }
+            }
+            player.setTranslateX(player.getTranslateX() + (movingRight ? 1 : -1));
+        }
+    }
 
-    private void jumpPlayer() {}
+    private void movePlayerY(int value) {
+        boolean movingDown = value > 0;
+
+        for (int i = 0; i < Math.abs(value); i++) {
+            for (Node platform : platforms) {
+                if (player.getBoundsInParent().intersects(platform.getBoundsInParent())) {
+                    if (movingDown) {
+                        if (player.getTranslateY() + 40 == platform.getTranslateY()) {
+                            player.setTranslateY(player.getTranslateY() - 1);
+                            canJump = true;
+                            return;
+                        }
+                    } else {
+                        if (player.getTranslateY() == platform.getTranslateY() + 60) {
+                            return;
+                        }
+                    }
+                }
+            }
+            player.setTranslateY(player.getTranslateY() + (movingDown ? 1 : -1));
+        }
+    }
+
+    private void jumpPlayer() {
+        if (canJump) {
+            playerVelocity = playerVelocity.add(0, -30);
+            canJump = false;
+        }
+    }
 
     private Node createEntity(int x, int y, int w, int h, Color color) {}
 
-    private boolean isPressed(KeyCode key) {}
+    private boolean isPressed(KeyCode key) {
+        return keys.getOrDefault(key, false);
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
