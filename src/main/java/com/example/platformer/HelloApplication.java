@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,11 +15,13 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class HelloApplication extends Application {
     HashMap<KeyCode, Boolean> keys = new HashMap<KeyCode, Boolean>();
 
     ArrayList<Node> platforms = new ArrayList<Node>();
+    ArrayList<Node> coins = new ArrayList<Node>();
 
     private Pane appRoot = new Pane();
     private Pane gameRoot = new Pane();
@@ -29,6 +32,8 @@ public class HelloApplication extends Application {
     private boolean canJump = true;
 
     private int levelWidth;
+
+    private boolean dialogEvent = false, running = true;
 
     private void initContent() {
         Rectangle bg = new Rectangle(1280, 720);
@@ -44,6 +49,10 @@ public class HelloApplication extends Application {
                     case '1':
                         Node platform = createEntity(j * 60, i * 60, 60, 60, Color.BROWN);
                         platforms.add(platform);
+                        break;
+                    case '2':
+                        Node coin = createEntity(j * 60, i * 60, 60, 60, Color.GOLD);
+                        coins.add(coin);
                         break;
                 }
             }
@@ -64,16 +73,45 @@ public class HelloApplication extends Application {
         if (isPressed(KeyCode.W) && player.getTranslateY() >= 5) {
             jumpPlayer();
         }
+        if (isPressed(KeyCode.SPACE) && player.getTranslateY() >= 5) {
+            jumpPlayer();
+        }
+        if (isPressed(KeyCode.UP) && player.getTranslateY() >= 5) {
+            jumpPlayer();
+        }
         if (isPressed(KeyCode.A) && player.getTranslateX() >= 5) {
-            movePlayerX(-5);
+            movePlayerX(-6);
+        }
+        if (isPressed(KeyCode.LEFT) && player.getTranslateX() >= 5) {
+            movePlayerX(-6);
         }
         if (isPressed(KeyCode.D) && player.getTranslateX() + 40 <= levelWidth - 5) {
-            movePlayerX(5);
+            movePlayerX(6);
+        }
+        if (isPressed(KeyCode.RIGHT) && player.getTranslateX() + 40 <= levelWidth - 5) {
+            movePlayerX(6);
         }
         if (playerVelocity.getY() < 10) {
             playerVelocity = playerVelocity.add(0, 1);
         }
+
         movePlayerY((int)playerVelocity.getY());
+
+        for (Node coin : coins) {
+            if (player.getBoundsInParent().intersects(coin.getBoundsInParent())) {
+                coin.getProperties().put("alive", false);
+                dialogEvent = true;
+                running = false;
+            }
+        }
+
+        for (Iterator<Node> it = coins.iterator(); it.hasNext();) {
+            Node coin = it.next();
+            if (!(Boolean)coin.getProperties().get("alive")) {
+                it.remove();
+                gameRoot.getChildren().remove(coin);
+            }
+        }
     }
 
     private void movePlayerX(int value) {
@@ -127,7 +165,16 @@ public class HelloApplication extends Application {
         }
     }
 
-    private Node createEntity(int x, int y, int w, int h, Color color) {}
+    private Node createEntity(int x, int y, int w, int h, Color color) {
+        Rectangle entity = new Rectangle(w, h);
+        entity.setTranslateX(x);
+        entity.setTranslateY(y);
+        entity.setFill(color);
+        entity.getProperties().put("alive", true);
+
+        gameRoot.getChildren().add(entity);
+        return entity;
+    }
 
     private boolean isPressed(KeyCode key) {
         return keys.getOrDefault(key, false);
@@ -147,7 +194,17 @@ public class HelloApplication extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                update();
+                if (running) {
+                    update();
+                }
+
+                if (dialogEvent) {
+                    dialogEvent = false;
+                    keys.keySet().forEach(key -> keys.put(key, false));
+
+                    GameDialog dialog = new GameDialog();
+                    dialog.setOnCloseRequest
+                }
             }
         };
         timer.start();
