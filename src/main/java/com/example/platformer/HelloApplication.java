@@ -4,13 +4,16 @@ package com.example.platformer;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -27,18 +30,20 @@ public class HelloApplication extends Application {
     private Pane gameRoot = new Pane();
     private Pane uiRoot = new Pane();
 
+
     private Node player;
     private Point2D playerVelocity = new Point2D(0, 0);
     private boolean canJump = true;
 
-    private int levelWidth;
+    private int levelWidth, levelHight;
 
-    private boolean dialogEvent = false, running = true;
+    private boolean running = true;
 
     private void initContent() {
         Rectangle bg = new Rectangle(1280, 720);
 
         levelWidth = LevelData.LEVEL1[0].length() * 60;
+        levelHight = LevelData.LEVEL1.length * 60;
 
         for (int i = 0; i < LevelData.LEVEL1.length; i++) {
             String line = LevelData.LEVEL1[i];
@@ -100,8 +105,6 @@ public class HelloApplication extends Application {
         for (Node coin : coins) {
             if (player.getBoundsInParent().intersects(coin.getBoundsInParent())) {
                 coin.getProperties().put("alive", false);
-                dialogEvent = true;
-                running = false;
             }
         }
 
@@ -112,6 +115,8 @@ public class HelloApplication extends Application {
                 gameRoot.getChildren().remove(coin);
             }
         }
+
+        death();
     }
 
     private void movePlayerX(int value) {
@@ -180,6 +185,17 @@ public class HelloApplication extends Application {
         return keys.getOrDefault(key, false);
     }
 
+    private boolean death() {
+        boolean death = false;
+
+        if (player.getTranslateY() > levelHight) {
+            death = true;
+            running = false;
+        }
+
+        return death;
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         initContent();
@@ -196,14 +212,6 @@ public class HelloApplication extends Application {
             public void handle(long now) {
                 if (running) {
                     update();
-                }
-
-                if (dialogEvent) {
-                    dialogEvent = false;
-                    keys.keySet().forEach(key -> keys.put(key, false));
-
-                    GameDialog dialog = new GameDialog();
-                    dialog.setOnCloseRequest
                 }
             }
         };
