@@ -19,4 +19,9 @@ public class GameDialog extends Stage {
         setScene(scene);
         initModality(Modality.APPLICATION_MODAL);
     }
+
+    public void open() {
+        gameOver.setText("GAME OVER!");
+        show();
+    }
 }

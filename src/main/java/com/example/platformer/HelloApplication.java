@@ -35,9 +35,9 @@ public class HelloApplication extends Application {
     private Point2D playerVelocity = new Point2D(0, 0);
     private boolean canJump = true;
 
-    private int levelWidth, levelHight;
+    private int levelWidth, levelHight, cont = 0;;
 
-    private boolean running = true;
+    private boolean running = true, death = false;
 
     private void initContent() {
         Rectangle bg = new Rectangle(1280, 720);
@@ -116,7 +116,9 @@ public class HelloApplication extends Application {
             }
         }
 
-        death();
+        if (cont == 0) {
+            death();
+        }
     }
 
     private void movePlayerX(int value) {
@@ -186,11 +188,10 @@ public class HelloApplication extends Application {
     }
 
     private boolean death() {
-        boolean death = false;
-
         if (player.getTranslateY() > levelHight) {
             death = true;
             running = false;
+            cont = 1;
         }
 
         return death;
@@ -212,6 +213,11 @@ public class HelloApplication extends Application {
             public void handle(long now) {
                 if (running) {
                     update();
+                }
+                if (death) {
+                    GameDialog gameDialog = new GameDialog();
+                    gameDialog.open();
+                    death = false;
                 }
             }
         };
