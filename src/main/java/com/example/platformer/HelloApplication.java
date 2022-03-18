@@ -9,13 +9,17 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.text.CollationElementIterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,10 +30,13 @@ public class HelloApplication extends Application {
     ArrayList<Node> platforms = new ArrayList<Node>();
     ArrayList<Node> coins = new ArrayList<Node>();
 
+    private Label coinsCollected = new Label("0");
+    private Label cCollected = new Label("Coins Collected:");
+    private int coinsC = 0;
+
     private Pane appRoot = new Pane();
     private Pane gameRoot = new Pane();
     private Pane uiRoot = new Pane();
-
 
     private Node player;
     private Point2D playerVelocity = new Point2D(0, 0);
@@ -41,6 +48,16 @@ public class HelloApplication extends Application {
 
     private void initContent() {
         Rectangle bg = new Rectangle(1280, 720);
+
+        coinsCollected.setTextFill(Color.WHITE);
+        coinsCollected.setFont(new Font("Roboto", 30));
+        coinsCollected.setLayoutX(220);
+        coinsCollected.setLayoutY(3);
+
+        cCollected.setTextFill(Color.WHITE);
+        cCollected.setFont(new Font("Roboto", 30));
+        cCollected.setLayoutX(0);
+        cCollected.setLayoutY(3);
 
         levelWidth = LevelData.LEVEL1[0].length() * 60;
         levelHight = LevelData.LEVEL1.length * 60;
@@ -71,7 +88,7 @@ public class HelloApplication extends Application {
                 gameRoot.setLayoutX(-(offset - 640));
             }
         });
-        appRoot.getChildren().addAll(bg, gameRoot, uiRoot);
+        appRoot.getChildren().addAll(bg, cCollected, coinsCollected, gameRoot, uiRoot);
     }
 
     private void update() {
@@ -105,6 +122,8 @@ public class HelloApplication extends Application {
         for (Node coin : coins) {
             if (player.getBoundsInParent().intersects(coin.getBoundsInParent())) {
                 coin.getProperties().put("alive", false);
+                coinsC++;
+                coinsCollected.setText(String.valueOf(coinsC));
             }
         }
 
