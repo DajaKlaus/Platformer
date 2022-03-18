@@ -27,9 +27,11 @@ import java.util.Iterator;
 public class HelloApplication extends Application {
     HashMap<KeyCode, Boolean> keys = new HashMap<KeyCode, Boolean>();
 
-    ArrayList<Node> platforms = new ArrayList<Node>();
-    ArrayList<Node> coins = new ArrayList<Node>();
+    ArrayList<Node> platforms = new ArrayList<>();
+    ArrayList<Node> coins = new ArrayList<>();
+    ArrayList<Node> rods = new ArrayList<>();
 
+    private Label win = new Label("Congratulation!");
     private Label coinsCollected = new Label("0");
     private Label cCollected = new Label("Coins Collected:");
     private int coinsC = 0;
@@ -76,6 +78,9 @@ public class HelloApplication extends Application {
                         Node coin = createEntity(j * 60, i * 60, 60, 60, Color.GOLD);
                         coins.add(coin);
                         break;
+                    case '3':
+                        Node rod = createEntity(j * 60, i * 60, 10, 60, Color.GREEN);
+                        rods.add(rod);
                 }
             }
         }
@@ -132,6 +137,15 @@ public class HelloApplication extends Application {
             if (!(Boolean)coin.getProperties().get("alive")) {
                 it.remove();
                 gameRoot.getChildren().remove(coin);
+            }
+        }
+
+        for (Node rod : rods) {
+            if ((player.getTranslateX() > rod.getTranslateX() + 20) && (player.getBoundsInParent().intersects())) {
+                running = false;
+                win.setTextFill(Color.WHITE);
+                win.setFont(new Font("Roboto", 50));
+                win.setAlignment(Pos.CENTER);
             }
         }
 
