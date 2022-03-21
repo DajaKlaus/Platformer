@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class HelloApplication extends Application {
-    HashMap<KeyCode, Boolean> keys = new HashMap<KeyCode, Boolean>();
+    HashMap<KeyCode, Boolean> keys = new HashMap<>();
 
     ArrayList<Node> platforms = new ArrayList<>();
     ArrayList<Node> coins = new ArrayList<>();
@@ -35,6 +35,7 @@ public class HelloApplication extends Application {
     private Label coinsCollected = new Label("0");
     private Label cCollected = new Label("Coins Collected:");
     private int coinsC = 0;
+    private boolean contWin = false;
 
     private Pane appRoot = new Pane();
     private Pane gameRoot = new Pane();
@@ -44,9 +45,9 @@ public class HelloApplication extends Application {
     private Point2D playerVelocity = new Point2D(0, 0);
     private boolean canJump = true;
 
-    private int levelWidth, levelHight, cont = 0;;
+    private int levelWidth, levelHight;
 
-    private boolean running = true, death = false;
+    private boolean running = true, death = false, cont = false;
 
     private void initContent() {
         Rectangle bg = new Rectangle(1280, 720);
@@ -141,15 +142,20 @@ public class HelloApplication extends Application {
         }
 
         for (Node rod : rods) {
-            if ((player.getTranslateX() > rod.getTranslateX() + 20) && (player.getBoundsInParent().intersects())) {
+            if ((player.getTranslateX() > rod.getTranslateX() + 20) && (player.getTranslateY() >= 375)) {
                 running = false;
                 win.setTextFill(Color.WHITE);
                 win.setFont(new Font("Roboto", 50));
-                win.setAlignment(Pos.CENTER);
+                win.setLayoutX(530);
+                contWin = true;
             }
         }
 
-        if (cont == 0) {
+        if (contWin) {
+            appRoot.getChildren().addAll(win);
+        }
+
+        if (!cont) {
             death();
         }
     }
@@ -224,7 +230,7 @@ public class HelloApplication extends Application {
         if (player.getTranslateY() > levelHight) {
             death = true;
             running = false;
-            cont = 1;
+            cont = true;
         }
 
         return death;
