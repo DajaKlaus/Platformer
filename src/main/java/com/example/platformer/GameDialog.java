@@ -17,7 +17,7 @@ public class GameDialog extends Stage {
         Scene scene = new Scene(vBox);
 
         setScene(scene);
-        initModality(Modality.APPLICATION_MODAL);
+        initModality(Modality.APPLICATION_MODAL); // APPLICATION_MODAL serve per non poter interaggire con altra finestre al di fuori di quella VBox
     }
 
     public void open() {
