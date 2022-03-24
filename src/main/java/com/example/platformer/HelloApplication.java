@@ -2,8 +2,10 @@ package com.example.platformer;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
@@ -18,6 +20,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class HelloApplication extends Application {
+    public Stage secondaryStage = new Stage();
+    public HelloController helloController = new HelloController();
+
     private HashMap<KeyCode, Boolean> keys = new HashMap<>(); //in base al tasto premuto esso diventa vero
 
     //suddivisione elementi di gioco
@@ -45,9 +50,9 @@ public class HelloApplication extends Application {
 
     private int levelWidth, levelHight;
 
-    private boolean running = true, death = false, cont = false;
+    private boolean running = true, death = false, cont = false;  //cont serve per non far continuare a richiamare death nel timer
 
-    private void initContent() {
+    public Parent initContent() {
         Rectangle bg = new Rectangle(1280, 720); //background
 
         coinsCollected.setTextFill(Color.WHITE);
@@ -94,9 +99,11 @@ public class HelloApplication extends Application {
             }
         });
         appRoot.getChildren().addAll(bg, cCollected, coinsCollected, gameRoot, uiRoot); //memorizzazione tutti elementi
+
+        return appRoot;
     }
 
-    private void update() {
+    public void update() {
         if (isPressed(KeyCode.W) && player.getTranslateY() >= 6) { // controllo tasto premuto + controllo uscita schermo
             jumpPlayer();
         }
@@ -159,7 +166,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    private void movePlayerX(int value) {
+    public void movePlayerX(int value) {
         boolean movingRight = value > 0; // è positivo se un tasto viene premuto
 
         // il player si muove un unità alla volta per evitare che player e platform si sovrappongono
@@ -181,7 +188,7 @@ public class HelloApplication extends Application {
         }
     }
 
-    private void movePlayerY(int value) {
+    public void movePlayerY(int value) {
         boolean movingDown = value > 0;
 
         for (int i = 0; i < Math.abs(value); i++) {
@@ -204,14 +211,14 @@ public class HelloApplication extends Application {
         }
     }
 
-    private void jumpPlayer() {
+    public void jumpPlayer() {
         if (canJump) {
             playerVelocity = playerVelocity.add(0, -30);
             canJump = false;
         }
     }
 
-    private Node createEntity(int x, int y, int w, int h, Color color) {
+    public Node createEntity(int x, int y, int w, int h, Color color) {
         Rectangle entity = new Rectangle(w, h);
         entity.setTranslateX(x);
         entity.setTranslateY(y);
@@ -222,11 +229,11 @@ public class HelloApplication extends Application {
         return entity;
     }
 
-    private boolean isPressed(KeyCode key) {
+    public boolean isPressed(KeyCode key) {
         return keys.getOrDefault(key, false);
     }
 
-    private boolean death() {
+    public boolean death() {
         if (player.getTranslateY() > levelHight) {
             death = true;
             running = false;
@@ -238,16 +245,23 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+
         initContent();
 
-        Scene scene = new Scene(appRoot); //aggiungo tutto il contenuto alla scena
+        Scene level = new Scene(appRoot); //aggiungo tutto il contenuto alla scena
         //memorizzazione tasto premuto o rilasciato nella tastiera in keys
-        scene.setOnKeyPressed(event -> keys.put(event.getCode(), true)); //se premuto diventa true
-        scene.setOnKeyReleased(event -> keys.put(event.getCode(), false)); //se rilasciato diventa false
+        level.setOnKeyPressed(event -> keys.put(event.getCode(), true)); //se premuto diventa true
+        level.setOnKeyReleased(event -> keys.put(event.getCode(), false)); //se rilasciato diventa false
         //
         primaryStage.setTitle("Platformer");
         primaryStage.setScene(scene);
         primaryStage.show();
+        secondaryStage.setScene(level);
+        if (helloController.OnBtnClicked()) {
+            secondaryStage.show();
+        }
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
